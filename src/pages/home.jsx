@@ -15,17 +15,26 @@ export default function Home() {
   }, []);
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Kategoriyalar</h2>
-      <ul className="flex flex-col gap-2">
+    <div className="max-w-3xl mx-auto">
+      <h2 className="text-2xl font-bold my-4">Kategoriyalar</h2>
+
+      <div className="grid grid-cols-2 gap-4">
         {categories.map((cat) => (
-          <li key={cat}>
-            <Link to={`/${cat.toLowerCase()}`} className="text-blue-600 underline">
-              {cat}
-            </Link>
-          </li>
+          <Link
+            key={cat}
+            to={`/${cat.toLowerCase()}`}
+            className="
+              bg-white shadow-sm rounded-xl p-6 
+              flex items-center justify-center 
+              text-lg font-semibold 
+              hover:shadow-lg hover:scale-105 
+              transition-all
+            "
+          >
+            {cat}
+          </Link>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

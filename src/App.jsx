@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import Home from "./pages/Home";
+import Home from "./pages/home";
 import CategoryPage from "./components/Category";
 import AdminPanel from "./pages/admin";
 import AdDetail from "./components/AdDetail";
