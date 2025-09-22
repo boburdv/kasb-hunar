@@ -1,37 +1,60 @@
 import { useEffect, useState } from "react";
-import { db } from "../firebase/config";
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { db, auth } from "../firebase/config";
+import { collection, getDocs } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 export default function AdminChat() {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null); // Foydalanuvchi holatini saqlash
   const [chats, setChats] = useState([]);
   const [ads, setAds] = useState({});
-  const navigate = useNavigate();
 
-  // Ads ma’lumotlarini olish
+  // 🔥 Foydalanuvchi tizimga kirganligini tekshirish
+  useEffect(() => {
+    const unsub = auth.onAuthStateChanged((currentUser) => {
+      if (currentUser) {
+        setUser(currentUser); // Tizimga kirgan foydalanuvchi
+      } else {
+        navigate("/auth"); // Tizimga kirmagan foydalanuvchi
+      }
+    });
+    return () => unsub();
+  }, [navigate]);
+
+  // 🔥 E’lonlar ro‘yxatini olish
   useEffect(() => {
     const fetchAds = async () => {
-      const snapshot = await getDocs(collection(db, "ads"));
-      const adsMap = {};
-      snapshot.docs.forEach((doc) => {
-        adsMap[doc.id] = doc.data().title; // adId => adTitle
-      });
-      setAds(adsMap);
+      try {
+        const snapshot = await getDocs(collection(db, "ads"));
+        const adsMap = {};
+        snapshot.docs.forEach((doc) => {
+          adsMap[doc.id] = doc.data().title;
+        });
+        setAds(adsMap);
+      } catch (err) {
+        console.error("Ads fetch error:", err);
+      }
     };
     fetchAds();
   }, []);
 
-  // Chats ma’lumotlarini olish
+  // 🔥 Chats ma’lumotlarini olish
   useEffect(() => {
     const fetchChats = async () => {
-      const snapshot = await getDocs(collection(db, "chats"));
-      const filteredChats = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })).filter((c) => c.messages?.length > 0);
-      setChats(filteredChats);
+      try {
+        const snapshot = await getDocs(collection(db, "chats"));
+        const filteredChats = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })).filter((c) => c.messages?.length > 0);
+        setChats(filteredChats);
+      } catch (err) {
+        console.error("Chats fetch error:", err);
+      }
     };
     fetchChats();
   }, []);
 
-  if (!chats.length) return <p>Sizda chatlar yo‘q</p>;
+  // 🔥 Loading holati va chatlar bo‘lmasa
+  if (!user) return <p>Loading...</p>; // Foydalanuvchi tizimga kirganini kutamiz
+  if (!chats.length) return <p>Sizda chatlar yo‘q</p>; // Chatlar mavjud bo‘lmasa
 
   return (
     <div className="max-w-xl mx-auto p-4">

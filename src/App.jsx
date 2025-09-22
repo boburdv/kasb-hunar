@@ -7,11 +7,12 @@ import AdminPanel from "./pages/admin";
 import AdDetail from "./components/AdDetail";
 import Chat from "./pages/Chat";
 import AdminChat from "./pages/admin-chat";
+import Auth from "./pages/auth";
 
 export default function App() {
   return (
     <Router>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen ">
         <Header />
         <main className="flex-1 p-4">
           <Routes>
@@ -21,6 +22,9 @@ export default function App() {
             <Route path="/chat/:adId" element={<Chat />} />
             <Route path="/chat" element={<AdminChat />} />
             <Route path="/admin" element={<AdminPanel />} />
+
+            {/* AUTH ROUTE TOG‘RI BUYERDA */}
+            <Route path="/auth" element={<Auth />} />
           </Routes>
         </main>
         <Footer />

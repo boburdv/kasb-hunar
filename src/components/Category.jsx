@@ -24,7 +24,7 @@ export default function CategoryPage() {
       ) : (
         <ul className="flex flex-col gap-3">
           {ads.map((ad) => (
-            <li key={ad.id} className="border p-3 rounded flex gap-3 items-start">
+            <li key={ad.id} className="bg-white p-3 rounded flex gap-3 items-start">
               {ad.imageURL && <img src={ad.imageURL} alt={ad.title} className="w-32 h-32 object-cover rounded" />}
               <div>
                 <Link to={`/ad/${ad.id}`}>
