@@ -52,9 +52,8 @@ export default function AdminChat() {
     fetchChats();
   }, []);
 
-  // 🔥 Loading holati va chatlar bo‘lmasa
-  if (!user) return <p>Loading...</p>; // Foydalanuvchi tizimga kirganini kutamiz
-  if (!chats.length) return <p>Sizda chatlar yo‘q</p>; // Chatlar mavjud bo‘lmasa
+  if (!user) return <p>Loading...</p>;
+  if (!chats.length) return <p>Sizda chatlar yo‘q</p>;
 
   return (
     <div className="max-w-xl mx-auto p-4">

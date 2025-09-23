@@ -17,13 +17,15 @@ export default function App() {
         <main className="flex-1 p-4">
           <Routes>
             <Route path="/" element={<Home />} />
+
+            {/* Bitta CategoryPage.jsx ham category, ham sub-categoryni ishlatadi */}
             <Route path="/:categoryName" element={<CategoryPage />} />
+            <Route path="/:categoryName/:subName" element={<CategoryPage />} />
+
             <Route path="/ad/:adId" element={<AdDetail />} />
             <Route path="/chat/:adId" element={<Chat />} />
             <Route path="/chat" element={<AdminChat />} />
             <Route path="/admin" element={<AdminPanel />} />
-
-            {/* AUTH ROUTE TOG‘RI BUYERDA */}
             <Route path="/auth" element={<Auth />} />
           </Routes>
         </main>

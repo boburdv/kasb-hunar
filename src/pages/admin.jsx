@@ -14,6 +14,7 @@ export default function AdminPanel() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
+  const [subCategory, setSubCategory] = useState("");
   const [price, setPrice] = useState("");
   const [image, setImage] = useState(null);
   const [message, setMessage] = useState("");
@@ -33,7 +34,9 @@ export default function AdminPanel() {
   useEffect(() => {
     const fetchCategories = async () => {
       const snapshot = await getDocs(collection(db, "categories"));
-      setCategories(snapshot.docs.map((doc) => doc.data().name));
+      // Mana bu yerda kategoriyalarni subkategoriya bilan saqlaymiz
+      const cats = snapshot.docs.map((doc) => doc.data());
+      setCategories(cats);
     };
     fetchCategories();
   }, []);
@@ -52,19 +55,30 @@ export default function AdminPanel() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !description || !category || !price) return setMessage("Barcha maydonlarni to‘ldiring!");
+    if (!title || !description || !category || !subCategory || !price) {
+      return setMessage("Barcha maydonlarni to‘ldiring!");
+    }
     let imageURL = "";
     if (image) {
       const storageRef = ref(storage, `ads/${Date.now()}_${image.name}`);
       await uploadBytes(storageRef, image);
       imageURL = await getDownloadURL(storageRef);
     }
-    await addDoc(collection(db, "ads"), { title, description, price, imageURL, category: category.toLowerCase(), createdAt: serverTimestamp() });
+    await addDoc(collection(db, "ads"), {
+      title,
+      description,
+      price,
+      imageURL,
+      category: category.toLowerCase(),
+      subCategory: subCategory.toLowerCase(),
+      createdAt: serverTimestamp(),
+    });
     setMessage("E’lon muvaffaqiyatli qo‘shildi!");
     setTitle("");
     setDescription("");
     setPrice("");
     setCategory("");
+    setSubCategory("");
     setImage(null);
   };
 
@@ -83,23 +97,44 @@ export default function AdminPanel() {
 
   return (
     <div className="max-w-xl mx-auto p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">E’lon qo‘shish (Admin)</h2>
-      </div>
+      <h2 className="text-2xl font-bold mb-4">E’lon qo‘shish (Admin)</h2>
       {message && <p className="mb-4 text-green-600">{message}</p>}
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 mb-6">
         <input type="text" placeholder="E’lon nomi" value={title} onChange={(e) => setTitle(e.target.value)} className="border p-2 rounded" />
         <textarea placeholder="Tafsifi" value={description} onChange={(e) => setDescription(e.target.value)} className="border p-2 rounded" />
         <input type="number" placeholder="Narxi" value={price} onChange={(e) => setPrice(e.target.value)} className="border p-2 rounded" />
         <input type="file" onChange={(e) => setImage(e.target.files[0])} className="border p-2 rounded" />
-        <select value={category} onChange={(e) => setCategory(e.target.value)} className="border p-2 rounded">
+
+        {/* Asosiy kategoriya */}
+        <select
+          value={category}
+          onChange={(e) => {
+            setCategory(e.target.value);
+            setSubCategory("");
+          }}
+          className="border p-2 rounded"
+        >
           <option value="">Kategoriya tanlang</option>
           {categories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
+            <option key={cat.name} value={cat.name}>
+              {cat.name}
             </option>
           ))}
         </select>
+
+        {/* Subkategoriya */}
+        <select value={subCategory} onChange={(e) => setSubCategory(e.target.value)} className="border p-2 rounded" disabled={!category}>
+          <option value="">Subkategoriya tanlang</option>
+          {category &&
+            categories
+              .find((cat) => cat.name === category)
+              ?.sub?.map((sub, index) => (
+                <option key={index} value={sub}>
+                  {sub}
+                </option>
+              ))}
+        </select>
+
         <button type="submit" className="bg-blue-500 text-white p-2 rounded">
           Qo‘shish
         </button>

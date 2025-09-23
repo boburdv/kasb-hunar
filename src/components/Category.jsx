@@ -6,19 +6,49 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 export default function CategoryPage() {
   const { categoryName } = useParams();
   const [ads, setAds] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+  const [selectedSubCategory, setSelectedSubCategory] = useState("");
+
+  useEffect(() => {
+    const fetchSubCategories = async () => {
+      const snapshot = await getDocs(collection(db, "categories"));
+      const categoryData = snapshot.docs.map((doc) => doc.data()).find((cat) => cat.name.toLowerCase() === categoryName.toLowerCase());
+      if (categoryData?.sub) setSubCategories(categoryData.sub);
+    };
+    fetchSubCategories();
+  }, [categoryName]);
 
   useEffect(() => {
     const fetchAds = async () => {
-      const q = query(collection(db, "ads"), where("category", "==", categoryName.toLowerCase()));
+      let q;
+      if (selectedSubCategory) {
+        q = query(collection(db, "ads"), where("category", "==", categoryName.toLowerCase()), where("subCategory", "==", selectedSubCategory.toLowerCase()));
+      } else {
+        q = query(collection(db, "ads"), where("category", "==", categoryName.toLowerCase()));
+      }
       const snapshot = await getDocs(q);
       setAds(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     };
     fetchAds();
-  }, [categoryName]);
+  }, [categoryName, selectedSubCategory]);
 
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Kategoriya: {categoryName}</h2>
+
+      {subCategories.length > 0 && (
+        <div className="flex gap-2 mb-4 flex-wrap">
+          <button onClick={() => setSelectedSubCategory("")} className={`px-3 py-1 rounded border ${selectedSubCategory === "" ? "bg-blue-500 text-white" : ""}`}>
+            Barchasi
+          </button>
+          {subCategories.map((sub, index) => (
+            <button key={index} onClick={() => setSelectedSubCategory(sub)} className={`px-3 py-1 rounded border ${selectedSubCategory === sub ? "bg-blue-500 text-white" : ""}`}>
+              {sub}
+            </button>
+          ))}
+        </div>
+      )}
+
       {ads.length === 0 ? (
         <p>Hozircha e'lonlar yo'q.</p>
       ) : (

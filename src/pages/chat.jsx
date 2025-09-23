@@ -12,16 +12,14 @@ export default function Chat() {
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef();
 
-  // 🔥 Foydalanuvchi sessiyasini aniqlash
   useEffect(() => {
     const unsub = auth.onAuthStateChanged((user) => {
       setCurrentUser(user);
-      setLoading(false); // MUHIM: faqat user aniq bo‘lganda loading tugaydi
+      setLoading(false);
     });
     return () => unsub();
   }, []);
 
-  // 🔥 Agar login qilmagan bo‘lsa — faqat loading tugaganda tekshiramiz
   useEffect(() => {
     if (!loading && !currentUser) {
       navigate(`/auth?redirect=/chat/${adId}`);
@@ -30,7 +28,6 @@ export default function Chat() {
 
   const currentUserId = currentUser?.email;
 
-  // 🔥 Chatni yuklash
   useEffect(() => {
     if (!currentUserId) return;
 
@@ -54,7 +51,6 @@ export default function Chat() {
     return () => unsub();
   }, [adId, currentUserId]);
 
-  // 🔥 Xabar yuborish
   const handleSend = async () => {
     if (!text.trim()) return;
     const chatRef = doc(db, "chats", adId);
@@ -63,12 +59,10 @@ export default function Chat() {
     setText("");
   };
 
-  // 🔥 Scroll to bottom
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // 🔥 Loading holati
   if (loading) return <p>Loading...</p>;
 
   return (

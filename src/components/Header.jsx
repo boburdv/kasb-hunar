@@ -36,11 +36,9 @@ export default function Header() {
           </Link>
         )}
 
-        {user && (
-          <Link to="/chat" className="bg-white text-blue-500 px-3 py-1 rounded hover:bg-gray-200">
-            Chat
-          </Link>
-        )}
+        <Link to="/chat" className="bg-white text-blue-500 px-3 py-1 rounded hover:bg-gray-200">
+          Chat
+        </Link>
 
         {user && <span className="ml-2">{user.email}</span>}
 
