@@ -22,7 +22,7 @@ export default function Home() {
         {categories.map((cat) => (
           <Link
             key={cat}
-            to={`/${cat.toLowerCase()}`}
+            to={`/${cat}`}
             className="
               bg-white shadow-sm rounded-xl p-6 
               flex items-center justify-center 

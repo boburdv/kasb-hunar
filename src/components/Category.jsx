@@ -8,14 +8,17 @@ export default function CategoryPage() {
   const [ads, setAds] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [selectedSubCategory, setSelectedSubCategory] = useState("");
+  const [categoryInfo, setCategoryInfo] = useState(null);
 
   useEffect(() => {
-    const fetchSubCategories = async () => {
+    const fetchCategoryData = async () => {
       const snapshot = await getDocs(collection(db, "categories"));
-      const categoryData = snapshot.docs.map((doc) => doc.data()).find((cat) => cat.name.toLowerCase() === categoryName.toLowerCase());
+      const categoryData = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })).find((cat) => cat.name.toLowerCase() === categoryName.toLowerCase());
+
       if (categoryData?.sub) setSubCategories(categoryData.sub);
+      if (categoryData?.info) setCategoryInfo(categoryData.info); // yangi state kerak
     };
-    fetchSubCategories();
+    fetchCategoryData();
   }, [categoryName]);
 
   useEffect(() => {
@@ -34,7 +37,14 @@ export default function CategoryPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">Kategoriya: {categoryName}</h2>
+      {categoryInfo && (
+        <div className="mb-4 p-3 bg-gray-100 rounded">
+          <h2 className="text-2xl font-bold mb-4">{categoryName}</h2>
+          <p>Ta'srif: {categoryInfo.description}</p>
+          <br />
+          <p>Telefon: {categoryInfo.phone}</p>
+        </div>
+      )}
 
       {subCategories.length > 0 && (
         <div className="flex gap-2 mb-4 flex-wrap">
