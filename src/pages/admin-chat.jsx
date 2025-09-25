@@ -73,7 +73,7 @@ export default function AdminChat() {
         {chats.map((chat) => {
           const adTitle = ads[chat.id] || categoryNames[chat.id] || "Noma’lum e’lon";
           return (
-            <div key={chat.id} className="p-2 border rounded cursor-pointer hover:bg-gray-100">
+            <div key={chat.id} className="p-2 border rounded cursor-pointer hover:bg-gray-100" onClick={() => navigate(`/chat/${chat.id}`)}>
               <strong>E’lon nomi:</strong> {adTitle} <br />
               <strong>Xabarlar soni:</strong> {chat.messages?.length || 0}
             </div>

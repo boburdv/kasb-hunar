@@ -12,6 +12,7 @@ export default function Chat() {
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef();
 
+  // Foydalanuvchini tekshirish
   useEffect(() => {
     const unsub = auth.onAuthStateChanged((user) => {
       setCurrentUser(user);
@@ -28,6 +29,7 @@ export default function Chat() {
 
   const currentUserId = currentUser?.email;
 
+  // Chatni olish va live update
   useEffect(() => {
     if (!currentUserId) return;
 
@@ -51,14 +53,20 @@ export default function Chat() {
     return () => unsub();
   }, [adId, currentUserId]);
 
+  // Xabar yuborish
   const handleSend = async () => {
-    if (!text.trim()) return;
-    const chatRef = doc(db, "chats", adId);
-    const newMsg = { sender: currentUserId, text, createdAt: Date.now() };
-    await updateDoc(chatRef, { messages: arrayUnion(newMsg) });
+    const trimmed = text.trim();
+    if (!trimmed) return;
+
+    // Darhol inputni tozalaymiz
     setText("");
+
+    const chatRef = doc(db, "chats", adId);
+    const newMsg = { sender: currentUserId, text: trimmed, createdAt: Date.now() };
+    await updateDoc(chatRef, { messages: arrayUnion(newMsg) });
   };
 
+  // Scroll pastga
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -73,7 +81,7 @@ export default function Chat() {
         {messages
           .sort((a, b) => a.createdAt - b.createdAt)
           .map((msg, idx) => {
-            const time = new Date(msg.createdAt).toLocaleString(); // shu qator qo'shildi
+            const time = new Date(msg.createdAt).toLocaleString();
             return (
               <div key={idx} className={`flex items-start gap-2 max-w-[70%] ${msg.sender === currentUserId ? "self-end flex-row-reverse" : "self-start"}`}>
                 <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">{msg.sender[0].toUpperCase()}</div>
@@ -86,12 +94,22 @@ export default function Chat() {
               </div>
             );
           })}
-
         <div ref={scrollRef}></div>
       </div>
 
       <div className="flex gap-2">
-        <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Xabar yozing..." className="border p-2 flex-1 rounded" onKeyDown={(e) => e.key === "Enter" && handleSend()} />
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Xabar yozing..."
+          className="border p-2 flex-1 rounded"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault(); // Enter bosilganda form submit bo‘lishini oldini oladi
+              handleSend();
+            }
+          }}
+        />
         <button onClick={handleSend} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
           Yuborish
         </button>

@@ -96,10 +96,13 @@ export default function CategoryPage() {
       {categoryInfo && (
         <div className="mb-4 p-3 bg-gray-100 rounded">
           <h2 className="text-2xl font-bold mb-2">{categoryName}</h2>
-          {categoryInfo.description && <p>Ta’rif: {categoryInfo.description}</p>}
-          {categoryInfo.phone && <p>Telefon: {categoryInfo.phone}</p>}
 
-          {/* 🔹 Xabar yuborish tugmasi */}
+          {categoryInfo.description && <p className="whitespace-pre-line">{categoryInfo.description}</p>}
+
+          <br />
+
+          {categoryInfo.phone && <p>Aloqa: {categoryInfo.phone}</p>}
+
           <button onClick={handleSendMessage} className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
             Xabar yuborish
           </button>
@@ -120,23 +123,19 @@ export default function CategoryPage() {
         </div>
       )}
 
-      {ads.length === 0 ? (
-        <p>Hozircha e'lonlar yo'q.</p>
-      ) : (
-        <ul className="flex flex-col gap-3">
-          {ads.map((ad) => (
-            <li key={ad.id} className="bg-white p-3 rounded flex gap-3 items-start">
-              {ad.imageURL && <img src={ad.imageURL} alt={ad.title} className="w-32 h-32 object-cover rounded" />}
-              <div>
-                <Link to={`/ad/${ad.id}`}>
-                  <h3 className="font-bold text-lg hover:text-blue-600">{ad.title}</h3>
-                </Link>
-                {ad.price && <p className="text-green-600 font-semibold">{ad.price} so'm</p>}
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+      <ul className="flex flex-col gap-3">
+        {ads.map((ad) => (
+          <li key={ad.id} className="bg-white p-3 rounded flex gap-3 items-start">
+            {ad.imageURL && <img src={ad.imageURL} alt={ad.title} className="w-32 h-32 object-cover rounded" />}
+            <div>
+              <Link to={`/ad/${ad.id}`}>
+                <h3 className="font-bold text-lg hover:text-blue-600">{ad.title}</h3>
+              </Link>
+              {ad.price && <p className="text-green-600 font-semibold">{ad.price} so'm</p>}
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

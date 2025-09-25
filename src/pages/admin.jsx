@@ -17,6 +17,7 @@ export default function AdminPanel() {
   const [subCategory, setSubCategory] = useState("");
   const [price, setPrice] = useState("");
   const [image, setImage] = useState(null);
+  const [imageLink, setImageLink] = useState(""); // yangi state
   const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,7 +35,6 @@ export default function AdminPanel() {
   useEffect(() => {
     const fetchCategories = async () => {
       const snapshot = await getDocs(collection(db, "categories"));
-      // Mana bu yerda kategoriyalarni subkategoriya bilan saqlaymiz
       const cats = snapshot.docs.map((doc) => doc.data());
       setCategories(cats);
     };
@@ -58,21 +58,27 @@ export default function AdminPanel() {
     if (!title || !description || !category || !subCategory || !price) {
       return setMessage("Barcha maydonlarni to‘ldiring!");
     }
-    let imageURL = "";
+
+    let finalImageURL = "";
+
     if (image) {
       const storageRef = ref(storage, `ads/${Date.now()}_${image.name}`);
       await uploadBytes(storageRef, image);
-      imageURL = await getDownloadURL(storageRef);
+      finalImageURL = await getDownloadURL(storageRef);
+    } else if (imageLink) {
+      finalImageURL = imageLink;
     }
+
     await addDoc(collection(db, "ads"), {
       title,
       description,
       price,
-      imageURL,
+      imageURL: finalImageURL,
       category: category.toLowerCase(),
       subCategory: subCategory.toLowerCase(),
       createdAt: serverTimestamp(),
     });
+
     setMessage("E’lon muvaffaqiyatli qo‘shildi!");
     setTitle("");
     setDescription("");
@@ -80,6 +86,7 @@ export default function AdminPanel() {
     setCategory("");
     setSubCategory("");
     setImage(null);
+    setImageLink("");
   };
 
   if (!user) {
@@ -103,7 +110,10 @@ export default function AdminPanel() {
         <input type="text" placeholder="E’lon nomi" value={title} onChange={(e) => setTitle(e.target.value)} className="border p-2 rounded" />
         <textarea placeholder="Tafsifi" value={description} onChange={(e) => setDescription(e.target.value)} className="border p-2 rounded" />
         <input type="number" placeholder="Narxi" value={price} onChange={(e) => setPrice(e.target.value)} className="border p-2 rounded" />
+
+        {/* Rasm fayl yoki link */}
         <input type="file" onChange={(e) => setImage(e.target.files[0])} className="border p-2 rounded" />
+        <input type="text" placeholder="Rasm linkini kiriting (agar fayl yuklamasangiz)" value={imageLink} onChange={(e) => setImageLink(e.target.value)} className="border p-2 rounded" />
 
         {/* Asosiy kategoriya */}
         <select
