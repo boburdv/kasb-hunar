@@ -4,7 +4,7 @@ import { db, auth } from "../firebase/config";
 import { doc, onSnapshot, updateDoc, arrayUnion, setDoc, getDoc } from "firebase/firestore";
 
 export default function Chat() {
-  const { adId } = useParams();
+  const { adId } = useParams(); // category-<name>
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
@@ -12,7 +12,6 @@ export default function Chat() {
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef();
 
-  // Foydalanuvchini tekshirish
   useEffect(() => {
     const unsub = auth.onAuthStateChanged((user) => {
       setCurrentUser(user);
@@ -22,61 +21,48 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
-    if (!loading && !currentUser) {
-      navigate(`/auth?redirect=/chat/${adId}`);
-    }
+    if (!loading && !currentUser) navigate(`/auth?redirect=/chat/${adId}`);
   }, [loading, currentUser, adId, navigate]);
 
   const currentUserId = currentUser?.email;
 
-  // Chatni olish va live update
   useEffect(() => {
     if (!currentUserId) return;
-
     const chatRef = doc(db, "chats", adId);
 
-    const initChat = async () => {
+    (async () => {
       const snap = await getDoc(chatRef);
-      if (!snap.exists()) {
-        await setDoc(chatRef, { messages: [] });
-      }
-    };
-    initChat();
+      if (!snap.exists()) await setDoc(chatRef, { messages: [] });
+    })();
 
     const unsub = onSnapshot(chatRef, (snap) => {
-      if (snap.exists()) {
-        const data = snap.data();
-        setMessages(data.messages || []);
-      }
+      if (snap.exists()) setMessages(snap.data().messages || []);
     });
 
     return () => unsub();
   }, [adId, currentUserId]);
 
-  // Xabar yuborish
   const handleSend = async () => {
     const trimmed = text.trim();
     if (!trimmed) return;
-
-    // Darhol inputni tozalaymiz
     setText("");
-
     const chatRef = doc(db, "chats", adId);
-    const newMsg = { sender: currentUserId, text: trimmed, createdAt: Date.now() };
-    await updateDoc(chatRef, { messages: arrayUnion(newMsg) });
+    await updateDoc(chatRef, {
+      messages: arrayUnion({ sender: currentUserId, text: trimmed, createdAt: Date.now() }),
+    });
   };
 
-  // Scroll pastga
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   if (loading) return <p>Loading...</p>;
 
+  const chatName = adId.replace("category-", "").replace(/-/g, " ");
+
   return (
     <div className="max-w-xl mx-auto p-4 flex flex-col h-[80vh]">
-      <h2 className="text-2xl font-bold mb-4">Chat</h2>
-
+      <h2 className="text-2xl font-bold mb-4">{chatName} bo'yicha fikrlar</h2>
       <div className="flex-1 overflow-y-auto mb-4 flex flex-col gap-2">
         {messages
           .sort((a, b) => a.createdAt - b.createdAt)
@@ -96,7 +82,6 @@ export default function Chat() {
           })}
         <div ref={scrollRef}></div>
       </div>
-
       <div className="flex gap-2">
         <input
           value={text}
@@ -105,7 +90,7 @@ export default function Chat() {
           className="border p-2 flex-1 rounded"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              e.preventDefault(); // Enter bosilganda form submit bo‘lishini oldini oladi
+              e.preventDefault();
               handleSend();
             }
           }}

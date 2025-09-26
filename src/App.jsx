@@ -1,30 +1,27 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import Home from "./pages/home";
+import Home from "./pages/Home";
 import CategoryPage from "./components/Category";
-import AdminPanel from "./pages/admin";
+import AdminPanel from "./pages/Admin";
 import AdDetail from "./components/AdDetail";
 import Chat from "./pages/Chat";
-import AdminChat from "./pages/admin-chat";
-import Auth from "./pages/auth";
+import AllChats from "./pages/AllChats";
+import Auth from "./pages/Auth";
 
 export default function App() {
   return (
     <Router>
-      <div className="flex flex-col min-h-screen ">
+      <div>
         <Header />
         <main className="flex-1 p-4">
           <Routes>
             <Route path="/" element={<Home />} />
-
-            {/* Bitta CategoryPage.jsx ham category, ham sub-categoryni ishlatadi */}
             <Route path="/:categoryName" element={<CategoryPage />} />
             <Route path="/:categoryName/:subName" element={<CategoryPage />} />
-
             <Route path="/ad/:adId" element={<AdDetail />} />
+            <Route path="/chat" element={<AllChats />} />
             <Route path="/chat/:adId" element={<Chat />} />
-            <Route path="/chat" element={<AdminChat />} />
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/auth" element={<Auth />} />
           </Routes>

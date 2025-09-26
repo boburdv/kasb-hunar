@@ -5,7 +5,7 @@ import { collection, addDoc, serverTimestamp, getDocs } from "firebase/firestore
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
 
-const ADMIN_EMAIL = "admin@store.uz";
+const ADMIN_EMAIL = "admin@admin.uz";
 
 export default function AdminPanel() {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ export default function AdminPanel() {
   const [subCategory, setSubCategory] = useState("");
   const [price, setPrice] = useState("");
   const [image, setImage] = useState(null);
-  const [imageLink, setImageLink] = useState(""); // yangi state
+  const [imageLink, setImageLink] = useState("");
   const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,20 +25,13 @@ export default function AdminPanel() {
   useEffect(() => {
     const unsub = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
-      if (currentUser && currentUser.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-        navigate("/auth");
-      }
+      if (currentUser && currentUser.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) navigate("/auth");
     });
     return () => unsub();
   }, [navigate]);
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      const snapshot = await getDocs(collection(db, "categories"));
-      const cats = snapshot.docs.map((doc) => doc.data());
-      setCategories(cats);
-    };
-    fetchCategories();
+    getDocs(collection(db, "categories")).then((snapshot) => setCategories(snapshot.docs.map((doc) => doc.data())));
   }, []);
 
   const handleLogin = async (e) => {
@@ -55,19 +48,9 @@ export default function AdminPanel() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !description || !category || !subCategory || !price) {
-      return setMessage("Barcha maydonlarni to‘ldiring!");
-    }
+    if (!title || !description || !category || !subCategory || !price) return setMessage("Barcha maydonlarni to‘ldiring!");
 
-    let finalImageURL = "";
-
-    if (image) {
-      const storageRef = ref(storage, `ads/${Date.now()}_${image.name}`);
-      await uploadBytes(storageRef, image);
-      finalImageURL = await getDownloadURL(storageRef);
-    } else if (imageLink) {
-      finalImageURL = imageLink;
-    }
+    let finalImageURL = image ? await getDownloadURL(await uploadBytes(ref(storage, `ads/${Date.now()}_${image.name}`), image)) : imageLink;
 
     await addDoc(collection(db, "ads"), {
       title,
@@ -89,7 +72,7 @@ export default function AdminPanel() {
     setImageLink("");
   };
 
-  if (!user) {
+  if (!user)
     return (
       <form onSubmit={handleLogin} className="max-w-xl mx-auto p-4 flex flex-col gap-2">
         <h2 className="text-2xl font-bold mb-4">Admin Login</h2>
@@ -100,7 +83,6 @@ export default function AdminPanel() {
         </button>
       </form>
     );
-  }
 
   return (
     <div className="max-w-xl mx-auto p-4">
@@ -110,12 +92,8 @@ export default function AdminPanel() {
         <input type="text" placeholder="E’lon nomi" value={title} onChange={(e) => setTitle(e.target.value)} className="border p-2 rounded" />
         <textarea placeholder="Tafsifi" value={description} onChange={(e) => setDescription(e.target.value)} className="border p-2 rounded" />
         <input type="number" placeholder="Narxi" value={price} onChange={(e) => setPrice(e.target.value)} className="border p-2 rounded" />
-
-        {/* Rasm fayl yoki link */}
         <input type="file" onChange={(e) => setImage(e.target.files[0])} className="border p-2 rounded" />
-        <input type="text" placeholder="Rasm linkini kiriting (agar fayl yuklamasangiz)" value={imageLink} onChange={(e) => setImageLink(e.target.value)} className="border p-2 rounded" />
-
-        {/* Asosiy kategoriya */}
+        <input type="text" placeholder="Rasm linki" value={imageLink} onChange={(e) => setImageLink(e.target.value)} className="border p-2 rounded" />
         <select
           value={category}
           onChange={(e) => {
@@ -131,20 +109,17 @@ export default function AdminPanel() {
             </option>
           ))}
         </select>
-
-        {/* Subkategoriya */}
         <select value={subCategory} onChange={(e) => setSubCategory(e.target.value)} className="border p-2 rounded" disabled={!category}>
           <option value="">Subkategoriya tanlang</option>
           {category &&
             categories
               .find((cat) => cat.name === category)
-              ?.sub?.map((sub, index) => (
-                <option key={index} value={sub}>
+              ?.sub?.map((sub, i) => (
+                <option key={i} value={sub}>
                   {sub}
                 </option>
               ))}
         </select>
-
         <button type="submit" className="bg-blue-500 text-white p-2 rounded">
           Qo‘shish
         </button>
