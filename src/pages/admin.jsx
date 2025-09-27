@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { auth, db, storage } from "../firebase/config";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { collection, addDoc, serverTimestamp, getDocs } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
+import { collection, addDoc, getDocs, serverTimestamp } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const ADMIN_EMAIL = "admin@admin.uz";
 
@@ -19,13 +18,14 @@ export default function AdminPanel() {
   const [image, setImage] = useState(null);
   const [imageLink, setImageLink] = useState("");
   const [message, setMessage] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
   useEffect(() => {
     const unsub = auth.onAuthStateChanged((currentUser) => {
-      setUser(currentUser);
-      if (currentUser && currentUser.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) navigate("/auth");
+      if (!currentUser) {
+        navigate("/auth", { replace: true });
+      } else {
+        setUser(currentUser);
+      }
     });
     return () => unsub();
   }, [navigate]);
@@ -34,23 +34,11 @@ export default function AdminPanel() {
     getDocs(collection(db, "categories")).then((snapshot) => setCategories(snapshot.docs.map((doc) => doc.data())));
   }, []);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await signInWithEmailAndPassword(auth, email, password);
-      setUser(res.user);
-      setEmail("");
-      setPassword("");
-    } catch (err) {
-      alert(err.message);
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title || !description || !category || !subCategory || !price) return setMessage("Barcha maydonlarni to‘ldiring!");
 
-    let finalImageURL = image ? await getDownloadURL(await uploadBytes(ref(storage, `ads/${Date.now()}_${image.name}`), image)) : imageLink;
+    const finalImageURL = image ? await getDownloadURL(await uploadBytes(ref(storage, `ads/${Date.now()}_${image.name}`), image)) : imageLink;
 
     await addDoc(collection(db, "ads"), {
       title,
@@ -72,17 +60,7 @@ export default function AdminPanel() {
     setImageLink("");
   };
 
-  if (!user)
-    return (
-      <form onSubmit={handleLogin} className="max-w-xl mx-auto p-4 flex flex-col gap-2">
-        <h2 className="text-2xl font-bold mb-4">Admin Login</h2>
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="border p-2 rounded" />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="border p-2 rounded" />
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded">
-          Kirish
-        </button>
-      </form>
-    );
+  if (!user) return null; // user hali set bo'lmasa hech narsani ko'rsatmaymiz
 
   return (
     <div className="max-w-xl mx-auto p-4">
