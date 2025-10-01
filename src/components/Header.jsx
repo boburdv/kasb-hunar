@@ -46,7 +46,7 @@ export default function Header() {
           <div className="flex gap-5">
             <a href="tel:+998901234567" className="flex items-center gap-1 hover:text-blue-600">
               <PhoneIcon className="w-4 h-4" />
-              <span>(90) 1234567</span>
+              <span>(90) 123 4567</span>
             </a>
             <a href="mailto:rishton@tech.uz" className="flex items-center gap-1 hover:text-blue-600">
               <EnvelopeIcon className="w-4 h-4" />
@@ -59,13 +59,13 @@ export default function Header() {
               <span>Ish vaqti: 8:00 - 18:00</span>
             </div>
             <div className="flex items-center gap-2">
-              <a href="#" className="bg-white p-1 rounded">
+              <a href="#" className="bg-white p-1">
                 <SiTelegram className="w-4 h-4 hover:text-blue-600" />
               </a>
-              <a href="#" className="bg-white p-1 rounded">
+              <a href="#" className="bg-white p-1">
                 <FaInstagram className="w-4 h-4 hover:text-blue-600" />
               </a>
-              <a href="#" className="bg-white p-1 rounded">
+              <a href="#" className="bg-white p-1">
                 <GrYoutube className="w-4 h-4 hover:text-blue-600" />
               </a>
             </div>
