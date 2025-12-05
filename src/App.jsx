@@ -12,7 +12,6 @@ import Auth from "./pages/Auth";
 function AppWrapper() {
   const location = useLocation();
 
-  // Layout bo‘lmaydigan sahifalar
   const noLayoutRoutes = ["/auth", "/chat"];
   const hideLayout = noLayoutRoutes.some((path) => location.pathname.startsWith(path));
 
@@ -21,7 +20,6 @@ function AppWrapper() {
       {/* Header */}
       {!hideLayout && <Header />}
 
-      {/* === ASOSIY QISM — grow === */}
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -35,7 +33,6 @@ function AppWrapper() {
         </Routes>
       </main>
 
-      {/* Footer */}
       {!hideLayout && <Footer />}
     </div>
   );

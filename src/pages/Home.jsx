@@ -25,7 +25,6 @@ export default function Home() {
 
   return (
     <div>
-      {/* Hero Section */}
       <div className="relative w-full h-[450px] md:h-[500px] lg:h-[550px] mt-[118px]">
         <img src="/home-img.jpg" alt="hero-image" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/50"></div>
