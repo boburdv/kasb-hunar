@@ -17,7 +17,6 @@ function AppWrapper() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Header */}
       {!hideLayout && <Header />}
 
       <main className="flex-1">
