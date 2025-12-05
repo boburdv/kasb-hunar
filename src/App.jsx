@@ -11,7 +11,6 @@ import Auth from "./pages/Auth";
 
 function AppWrapper() {
   const location = useLocation();
-
   const noLayoutRoutes = ["/auth", "/chat"];
   const hideLayout = noLayoutRoutes.some((path) => location.pathname.startsWith(path));
 
